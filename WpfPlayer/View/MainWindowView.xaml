@@ -1,0 +1,90 @@
+﻿<Window x:Class="WpfPlayer.MainWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfPlayer"
+        xmlns:self="clr-namespace:WpfPlayer.Model"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:viewmodel="clr-namespace:WpfPlayer.ViewModel"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MainWindowViewModel}"
+        mc:Ignorable="d"
+        Title="WpfPlayer" Height="800" Width="900" MinHeight="600" MinWidth="600" Icon="Music-icon.ico">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding XButton}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="276"/>
+            <RowDefinition Height="276*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="276" />
+                <ColumnDefinition Width="276*" />
+            </Grid.ColumnDefinitions>
+            <Image Grid.Row="0" Grid.Column="0" x:Name="image" HorizontalAlignment="Left" Height="256" Margin="10,10,0,0" VerticalAlignment="Top" Width="256" Source="{Binding DisplayedImagePath}" Stretch="Fill"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock" HorizontalAlignment="Left" Margin="0,10,0,0" Text="{Binding ArtistString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock1" HorizontalAlignment="Left" Margin="0,47,0,0" Text="{Binding AlbumString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock2" HorizontalAlignment="Left" Margin="0,84,0,0" Text="{Binding SongTitleString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="30"/>
+            <Button Grid.Row="0" Grid.Column="1" x:Name="RewButton" HorizontalAlignment="Left" Margin="0,0,0,38" VerticalAlignment="Bottom" Command="{Binding RewButton}" Width="64" Height="64" Background="#00DDDDDD" BorderBrush="#00707070" Foreground="#00000000">
+                <Image Source="{Binding RewIcon}"></Image>
+            </Button>
+            <Button Grid.Row="0" Grid.Column="1" x:Name="PlayButton" HorizontalAlignment="Left" Margin="69,0,0,38" VerticalAlignment="Bottom" Command="{Binding PlayButton}" Height="64" Width="64" FontSize="14" Background="#00DDDDDD" Foreground="#00000000" BorderBrush="#00707070">
+                <Image Source="{Binding PlayPauseIcon}"></Image>
+            </Button>
+            <Button Grid.Row="0" Grid.Column="1" x:Name="FFButton" HorizontalAlignment="Left" Margin="138,0,0,38" VerticalAlignment="Bottom" Command="{Binding FFButton}" Background="#00DDDDDD" BorderBrush="#00707070" Foreground="#00000000" Width="64" Height="64">
+                <Image Source="{Binding FFIcon}"></Image>
+            </Button>
+            <ProgressBar Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Height="18" Margin="0,0,80,10" VerticalAlignment="Bottom" Value="{Binding ProgressValue}" Foreground="#FF066AB0" Orientation="Horizontal" Maximum="1"/>
+            <Slider Grid.Row="0" Grid.Column="1" x:Name="slider1" HorizontalAlignment="Stretch" Margin="0,0,80,10" VerticalAlignment="Bottom" Maximum="1" Value="{Binding ProgressControlValue}" Height="18">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseDown">
+                        <i:InvokeCommandAction Command="{Binding Path=ProgressControlButton}"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="PreviewMouseUp">
+                        <i:InvokeCommandAction Command="{Binding Path=SetPositionButton}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Slider>
+            <TextBox Grid.Row="0" Grid.Column="1" x:Name="textBox" HorizontalAlignment="Right" Margin="0,0,10,9" Text="{Binding TimeRemaining, Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="60" FontSize="14"/>
+            
+            <Slider Grid.Row="0" Grid.Column="1" x:Name="slider" HorizontalAlignment="Right" Margin="0,0,10,46" VerticalAlignment="Bottom" Width="120" TickPlacement="None" Value="{Binding VolumeValue}" Maximum="1"/>
+            <Image x:Name="image1" Source="{Binding VolumeIcon}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Height="32" Margin="0,0,135,38" VerticalAlignment="Bottom" Width="32"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100*" />
+                <ColumnDefinition Width="100*" />
+            </Grid.ColumnDefinitions>
+            <!--<Button Grid.Row="1" Grid.Column="0" x:Name="button" Content="Load Dir" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Command="{Binding LoadDirButton}" FontSize="14"/>-->
+            <viewmodel:ExtendedTreeView Grid.Row="1" Grid.Column="0" x:Name="treeView" Margin="10,0,5,10" ItemsSource="{Binding LoadedFolder}" SelectedItem_="{Binding SelectedTreeViewItem, Mode=TwoWay}">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type self:Folder}" ItemsSource="{Binding subFolders}">
+                        <TextBlock Text="{Binding FolderName}" FontSize="14" />
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDoubleClick">
+                        <i:InvokeCommandAction Command="{Binding Path=LoadDirButton}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </viewmodel:ExtendedTreeView>
+            <ListBox Grid.Row="1" Grid.Column="1" x:Name="listBox" Margin="5,0,10,10" ItemsSource="{Binding Playlist}" SelectedIndex="{Binding PlaylistPosition, Mode=OneWay}" FontSize="14"/>
+            
+        </Grid>
+
+
+
+
+
+
+
+
+
+
+    </Grid>
+</Window>
