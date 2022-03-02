@@ -33,14 +33,15 @@ namespace WpfPlayer.ViewModel
             }
         }
 
+        private int _selectedPlaylistPosition = 0;
         private int _playlistPosition = 0;
-        public int PlaylistPosition
+        public int SelectedPlaylistPosition
         {
-            get => _playlistPosition;
+            get => _selectedPlaylistPosition;
             set
             {
-                _playlistPosition = value;
-                OnPropertyChanged(nameof(PlaylistPosition));
+                _selectedPlaylistPosition = value;
+                OnPropertyChanged(nameof(SelectedPlaylistPosition));
             }
         }
         private string _loadedDir;
@@ -62,17 +63,17 @@ namespace WpfPlayer.ViewModel
 
         public string RewIcon
         {
-            get => new string("pack://application:,,,/WpfPlayer;component/resources/rew.png");
+            get => "pack://application:,,,/WpfPlayer;component/resources/rew.png";
         }
 
         public string FFIcon
         {
-            get => new string("pack://application:,,,/WpfPlayer;component/resources/ff.png");
+            get => "pack://application:,,,/WpfPlayer;component/resources/ff.png";
         }
 
         public string VolumeIcon
         {
-            get => new string("pack://application:,,,/WpfPlayer;component/resources/volume.png");
+            get => "pack://application:,,,/WpfPlayer;component/resources/volume.png";
         }
 
         private double _volumeValue;
@@ -114,7 +115,7 @@ namespace WpfPlayer.ViewModel
         {
             get
             {
-                return "-" + _timeRemaining.Minutes + ":" + _timeRemaining.Seconds;
+                return "-" + _timeRemaining.ToString(@"m\:ss");
             }
         }
 
@@ -192,6 +193,7 @@ namespace WpfPlayer.ViewModel
             SetPositionButton = new RelayCommand(o => SetPosition());
             ProgressControlButton = new RelayCommand(o => ProgressControlButtonMouseDown());
             LoadDirButton = new RelayCommand(o => LoadDir(), o => EnableLoadDirButton);
+            PlayTrackButton = new RelayCommand(o => PlayTrack(), o => EnablePlayTrackButton);
             XButton = new RelayCommand(o => Closing());
             PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/play.png";
             VolumeValue = Properties.Settings.Default.Volume;
@@ -211,7 +213,7 @@ namespace WpfPlayer.ViewModel
         {
             if (dispatcherTimer.IsEnabled == true)
                 dispatcherTimer.Stop();
-            PlaylistPosition = 0;
+            SelectedPlaylistPosition = 0;
             ProgressControlValue = 0.0;
             ProgressValue = 0.0;
             PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/play.png";
@@ -219,15 +221,15 @@ namespace WpfPlayer.ViewModel
 
         private void MusicEngine_SongFinished(object sender, EventArgs e)
         {
-            if (PlaylistPosition == _playlist.Count - 2)
+            if (_playlistPosition == _playlist.Count - 2)
             {
-                PlaylistPosition++;
-                musicEngine.Play(_playlist[PlaylistPosition], null);
+                _playlistPosition++;
+                musicEngine.Play(_playlist[_playlistPosition], null);
             }
             else
             {
-                PlaylistPosition++;
-                musicEngine.Play(_playlist[PlaylistPosition], _playlist[PlaylistPosition + 1]);
+                _playlistPosition++;
+                musicEngine.Play(_playlist[_playlistPosition], _playlist[_playlistPosition + 1]);
             }
         }
 
@@ -245,6 +247,8 @@ namespace WpfPlayer.ViewModel
                 DisplayedImagePath = new Uri(e.Path + @"\cover.jpg");
             else
                 DisplayedImagePath = null;
+
+            SelectedPlaylistPosition = _playlistPosition;
         }
 
         //Sets up Buttons
@@ -257,7 +261,9 @@ namespace WpfPlayer.ViewModel
         public ICommand ProgressControlButton { get; private set; }
         public ICommand SetPositionButton { get; private set; }
         public ICommand LoadDirButton { get; private set; }
+        public ICommand PlayTrackButton { get; private set; }
         private bool EnableLoadDirButton { get; set; } = true;
+        private bool EnablePlayTrackButton { get; set; } = true;
         public ICommand XButton { get; private set; }
 
         private void Closing()
@@ -323,7 +329,31 @@ namespace WpfPlayer.ViewModel
 
                 //}
             //}
-        }        
+        }
+        
+        private void PlayTrack()
+        {
+            if (SelectedPlaylistPosition == _playlistPosition)
+            {
+                return;
+            }
+            else if (SelectedPlaylistPosition == _playlistPosition + 1)
+            {
+                FF();
+            }
+            else
+            {
+                if (musicEngine.IsPlaying || musicEngine.IsPaused)
+                {
+                    //_playlist.Clear();
+                    //_playlistPosition = 0;
+                    musicEngine.Stop();
+                }
+                _playlistPosition = SelectedPlaylistPosition;
+
+                PlayPause();
+            }
+        }
 
         private void Rew()
         {

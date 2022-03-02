@@ -26,9 +26,9 @@
                 <ColumnDefinition Width="276*" />
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Grid.Column="0" x:Name="image" HorizontalAlignment="Left" Height="256" Margin="10,10,0,0" VerticalAlignment="Top" Width="256" Source="{Binding DisplayedImagePath}" Stretch="Fill"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock" HorizontalAlignment="Left" Margin="0,10,0,0" Text="{Binding ArtistString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock1" HorizontalAlignment="Left" Margin="0,47,0,0" Text="{Binding AlbumString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock2" HorizontalAlignment="Left" Margin="0,84,0,0" Text="{Binding SongTitleString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="30"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock" HorizontalAlignment="Left" Margin="0,10,0,0" Text="{Binding ArtistString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock1" HorizontalAlignment="Left" Margin="0,47,0,0" Text="{Binding AlbumString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock2" HorizontalAlignment="Left" Margin="0,84,0,0" Text="{Binding SongTitleString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="30" TextTrimming="CharacterEllipsis"/>
             <Button Grid.Row="0" Grid.Column="1" x:Name="RewButton" HorizontalAlignment="Left" Margin="0,0,0,38" VerticalAlignment="Bottom" Command="{Binding RewButton}" Width="64" Height="64" Background="#00DDDDDD" BorderBrush="#00707070" Foreground="#00000000">
                 <Image Source="{Binding RewIcon}"></Image>
             </Button>
@@ -73,8 +73,14 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </viewmodel:ExtendedTreeView>
-            <ListBox Grid.Row="1" Grid.Column="1" x:Name="listBox" Margin="5,0,10,10" ItemsSource="{Binding Playlist}" SelectedIndex="{Binding PlaylistPosition, Mode=OneWay}" FontSize="14"/>
-            
+            <ListBox Grid.Row="1" Grid.Column="1" x:Name="listBox" Margin="5,0,10,10" ItemsSource="{Binding Playlist}" SelectedIndex="{Binding SelectedPlaylistPosition}" FontSize="14">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDoubleClick">
+                        <i:InvokeCommandAction Command="{Binding Path=PlayTrackButton}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ListBox>
+
         </Grid>
 
 
