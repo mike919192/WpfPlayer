@@ -304,15 +304,7 @@ namespace WpfPlayer.ViewModel
 
         private void LoadDir()
         {
-            //using (var fbd = new System.Windows.Forms.FolderBrowserDialog())
-            //{
-            //System.Windows.Forms.DialogResult result = fbd.ShowDialog();
-
-            //if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-            //{
-            //LoadedFolder = new Folder(fbd.SelectedPath);
-
-            _loadedDir = Path.Combine(((Folder)SelectedTreeViewItem).Path, ((Folder)SelectedTreeViewItem).FolderName);
+            _loadedDir = Path.Combine(((Folder)SelectedTreeViewItem).ParentDirectory, ((Folder)SelectedTreeViewItem).FolderName);
 
             if (musicEngine.IsPlaying || musicEngine.IsPaused)
             {
@@ -320,15 +312,11 @@ namespace WpfPlayer.ViewModel
                 _playlistPosition = 0;
                 musicEngine.Stop();
             }
-            //_loadedDir = fbd.SelectedPath;
-            _playlist = getFiles(_loadedDir, "*.mp3|*.flac", SearchOption.AllDirectories).ToList();
-            OnPropertyChanged(nameof(Playlist));            
+            
+            _playlist = ((Folder)SelectedTreeViewItem).GetFiles(SearchOption.AllDirectories);
+            OnPropertyChanged(nameof(Playlist));
 
             PlayPause();
-
-
-                //}
-            //}
         }
         
         private void PlayTrack()
@@ -386,24 +374,7 @@ namespace WpfPlayer.ViewModel
             _positionSliderMouseDown = true;
         }
 
-        public string[] getFiles(string SourceFolder, string Filter, SearchOption searchOption = SearchOption.TopDirectoryOnly)
-        {
-            // ArrayList will hold all file names
-            ArrayList alFiles = new ArrayList();
-
-            // Create an array of filter string
-            string[] MultipleFilters = Filter.Split('|');
-
-            // for each filter find mathing file names
-            foreach (string FileFilter in MultipleFilters)
-            {
-                // add found file names to array list
-                alFiles.AddRange(Directory.GetFiles(SourceFolder, FileFilter, searchOption));
-            }
-
-            // returns string array of relevant file names
-            return (string[])alFiles.ToArray(typeof(string));
-        }
+        
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string propertyName)

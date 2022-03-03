@@ -26,9 +26,9 @@
                 <ColumnDefinition Width="276*" />
             </Grid.ColumnDefinitions>
             <Image Grid.Row="0" Grid.Column="0" x:Name="image" HorizontalAlignment="Left" Height="256" Margin="10,10,0,0" VerticalAlignment="Top" Width="256" Source="{Binding DisplayedImagePath}" Stretch="Fill"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock" HorizontalAlignment="Left" Margin="0,10,0,0" Text="{Binding ArtistString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock1" HorizontalAlignment="Left" Margin="0,47,0,0" Text="{Binding AlbumString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="24" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock2" HorizontalAlignment="Left" Margin="0,84,0,0" Text="{Binding SongTitleString}" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="30" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock" HorizontalAlignment="Left" Margin="0,10,0,0" Text="{Binding ArtistString}" VerticalAlignment="Top" FontSize="24" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock1" HorizontalAlignment="Left" Margin="0,47,0,0" Text="{Binding AlbumString}" VerticalAlignment="Top" FontSize="24" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="textBlock2" HorizontalAlignment="Left" Margin="0,84,0,0" Text="{Binding SongTitleString}" VerticalAlignment="Top" FontSize="30" TextTrimming="CharacterEllipsis"/>
             <Button Grid.Row="0" Grid.Column="1" x:Name="RewButton" HorizontalAlignment="Left" Margin="0,0,0,38" VerticalAlignment="Bottom" Command="{Binding RewButton}" Width="64" Height="64" Background="#00DDDDDD" BorderBrush="#00707070" Foreground="#00000000">
                 <Image Source="{Binding RewIcon}"></Image>
             </Button>
@@ -63,7 +63,7 @@
             <!--<Button Grid.Row="1" Grid.Column="0" x:Name="button" Content="Load Dir" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Command="{Binding LoadDirButton}" FontSize="14"/>-->
             <viewmodel:ExtendedTreeView Grid.Row="1" Grid.Column="0" x:Name="treeView" Margin="10,0,5,10" ItemsSource="{Binding LoadedFolder}" SelectedItem_="{Binding SelectedTreeViewItem, Mode=TwoWay}">
                 <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type self:Folder}" ItemsSource="{Binding subFolders}">
+                    <HierarchicalDataTemplate DataType="{x:Type self:Folder}" ItemsSource="{Binding SubFolders}">
                         <TextBlock Text="{Binding FolderName}" FontSize="14" />
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
