@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -206,7 +207,25 @@ namespace WpfPlayer.ViewModel
             musicEngine.SongFinished += MusicEngine_SongFinished;
             musicEngine.PlaylistFinished += MusicEngine_PlaylistFinished;
 
-            LoadedFolder = new Folder(@"\\192.168.1.145\JMicron\MUSIC");
+            var appdataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WpfPlayer");
+            var jsonFilename = Path.Combine(appdataDir, "Folders.json");
+
+            if (Directory.Exists(appdataDir) == false)
+            {
+                Directory.CreateDirectory(appdataDir);
+            }
+
+            if (File.Exists(jsonFilename))
+            {
+                string json = File.ReadAllText(jsonFilename);
+                LoadedFolder = JsonConvert.DeserializeObject<Folder>(json);
+            }
+            else
+            {
+                LoadedFolder = new Folder(@"\\192.168.1.145\JMicron\MUSIC");
+                string json = JsonConvert.SerializeObject(LoadedFolder, Formatting.Indented);
+                File.WriteAllText(jsonFilename, json);
+            }
         }
 
         private void MusicEngine_PlaylistFinished(object sender, EventArgs e)
@@ -278,7 +297,7 @@ namespace WpfPlayer.ViewModel
         {
             if (musicEngine.IsPlaying == false)
             {
-                if (_playlist.Count == 1)
+                if (_playlistPosition == _playlist.Count - 1)
                     musicEngine.Play(_playlist[_playlistPosition], null);
                 else
                     musicEngine.Play(_playlist[_playlistPosition], _playlist[_playlistPosition + 1]);

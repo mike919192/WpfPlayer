@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,16 +10,25 @@ using System.Windows.Forms;
 
 namespace WpfPlayer.Model
 {
+    [JsonObject]
     public class Folder : IEnumerable //IComparable<Folder>
     {
         //private ObservableCollection<Folder> subFolders;
-        private ObservableCollection<string> files;
+        public ObservableCollection<string> files;
         private string folderName;
         private string parentDirectory;
 
-        public string FolderName => folderName;
+        public string FolderName
+        {
+            get => folderName;
+            set => folderName = value;
+        }
 
-        public string ParentDirectory => parentDirectory;
+        public string ParentDirectory
+        {
+            get => parentDirectory;
+            set => parentDirectory = value;
+        }
 
         public ObservableCollection<Folder> SubFolders { get; set; }
 
@@ -38,6 +48,11 @@ namespace WpfPlayer.Model
                 test[index] = test[index].Substring(directoryString.Length + 1);
                 Add(test[index].Split(Path.DirectorySeparatorChar));
             }
+        }
+
+        public Folder()
+        {
+
         }
 
         private string[] getFiles(string SourceFolder, string Filter, SearchOption searchOption = SearchOption.TopDirectoryOnly)
