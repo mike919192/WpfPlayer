@@ -233,6 +233,7 @@ namespace WpfPlayer.ViewModel
             if (dispatcherTimer.IsEnabled == true)
                 dispatcherTimer.Stop();
             SelectedPlaylistPosition = 0;
+            _playlistPosition = 0;
             ProgressControlValue = 0.0;
             ProgressValue = 0.0;
             PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/play.png";
@@ -346,6 +347,12 @@ namespace WpfPlayer.ViewModel
             }
             else if (SelectedPlaylistPosition == _playlistPosition + 1)
             {
+                if (musicEngine.IsPaused)
+                {
+                    if (dispatcherTimer.IsEnabled == false)
+                        dispatcherTimer.Start();
+                    PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/pause.png";
+                }
                 FF();
             }
             else
