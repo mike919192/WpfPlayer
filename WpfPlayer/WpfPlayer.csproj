@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <None Remove="Resources\ff.png" />
+    <None Remove="Resources\ff_white.png" />
     <None Remove="Resources\Music-icon-512.png" />
     <None Remove="Resources\Music-icon.ico" />
+    <None Remove="Resources\pause_white.png" />
+    <None Remove="Resources\play_white.png" />
     <None Remove="Resources\rew.png" />
+    <None Remove="Resources\rew_white.png" />
     <None Remove="Resources\volume.png" />
     <None Remove="View\pause.png" />
     <None Remove="View\play.png" />
@@ -25,8 +29,12 @@
 
   <ItemGroup>
     <Resource Include="Resources\ff.png" />
+    <Resource Include="Resources\ff_white.png" />
     <Resource Include="Resources\Music-icon-512.png" />
+    <Resource Include="Resources\pause_white.png" />
+    <Resource Include="Resources\play_white.png" />
     <Resource Include="Resources\rew.png" />
+    <Resource Include="Resources\rew_white.png" />
     <Resource Include="Resources\volume.png" />
     <Resource Include="View\Music-icon.ico" />
     <Resource Include="Resources\pause.png" />

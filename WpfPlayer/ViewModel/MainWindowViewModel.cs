@@ -62,19 +62,34 @@ namespace WpfPlayer.ViewModel
             }
         }
 
-        public string RewIcon
+        private string _playPauseWhiteIcon;
+        public string PlayPauseWhiteIcon
         {
-            get => "pack://application:,,,/WpfPlayer;component/resources/rew.png";
+            get => _playPauseWhiteIcon;
+            set
+            {
+                _playPauseWhiteIcon = value;
+                OnPropertyChanged(nameof(PlayPauseWhiteIcon));
+            }
         }
 
-        public string FFIcon
+        private void SetPlayPauseIcon(PlayPauseEnum playPauseIn)
         {
-            get => "pack://application:,,,/WpfPlayer;component/resources/ff.png";
+            if (playPauseIn == PlayPauseEnum.Play)
+            {
+                PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/play.png";
+                PlayPauseWhiteIcon = "pack://application:,,,/WpfPlayer;component/resources/play_white.png";
+            }
+            else
+            {
+                PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/pause.png";
+                PlayPauseWhiteIcon = "pack://application:,,,/WpfPlayer;component/resources/pause_white.png";
+            }
         }
 
-        public string VolumeIcon
+        private enum PlayPauseEnum
         {
-            get => "pack://application:,,,/WpfPlayer;component/resources/volume.png";
+            Play, Pause
         }
 
         private double _volumeValue;
@@ -136,6 +151,12 @@ namespace WpfPlayer.ViewModel
                 {
                     _displayedImagePath = value;
                     OnPropertyChanged(nameof(DisplayedImagePath));
+
+                    ThumbnailChangedEventArgs args = new ThumbnailChangedEventArgs
+                    {
+                        Path = _displayedImagePath?.LocalPath
+                    };
+                    OnThumbnailChanged(args);
                 }
             }
         }
@@ -196,7 +217,7 @@ namespace WpfPlayer.ViewModel
             LoadDirButton = new RelayCommand(o => LoadDir(), o => EnableLoadDirButton);
             PlayTrackButton = new RelayCommand(o => PlayTrack(), o => EnablePlayTrackButton);
             XButton = new RelayCommand(o => Closing());
-            PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/play.png";
+            SetPlayPauseIcon(PlayPauseEnum.Play);
             VolumeValue = Properties.Settings.Default.Volume;
             ProgressValue = 0.0;
 
@@ -236,7 +257,7 @@ namespace WpfPlayer.ViewModel
             _playlistPosition = 0;
             ProgressControlValue = 0.0;
             ProgressValue = 0.0;
-            PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/play.png";
+            SetPlayPauseIcon(PlayPauseEnum.Play);
         }
 
         private void MusicEngine_SongFinished(object sender, EventArgs e)
@@ -269,6 +290,8 @@ namespace WpfPlayer.ViewModel
                 DisplayedImagePath = null;
 
             SelectedPlaylistPosition = _playlistPosition;
+
+            OnSongStarted(new EventArgs());
         }
 
         //Sets up Buttons
@@ -304,14 +327,15 @@ namespace WpfPlayer.ViewModel
                     musicEngine.Play(_playlist[_playlistPosition], _playlist[_playlistPosition + 1]);
                 if (dispatcherTimer.IsEnabled == false)
                     dispatcherTimer.Start();
-                PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/pause.png";
+                SetPlayPauseIcon(PlayPauseEnum.Pause);
             }
             else
             {
                 musicEngine.Pause();
                 if (dispatcherTimer.IsEnabled == true)
                     dispatcherTimer.Stop();
-                PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/play.png";
+                SetPlayPauseIcon(PlayPauseEnum.Play);
+                OnSongPaused(new EventArgs());
             }            
         }
 
@@ -351,7 +375,7 @@ namespace WpfPlayer.ViewModel
                 {
                     if (dispatcherTimer.IsEnabled == false)
                         dispatcherTimer.Start();
-                    PlayPauseIcon = "pack://application:,,,/WpfPlayer;component/resources/pause.png";
+                    SetPlayPauseIcon(PlayPauseEnum.Pause);
                 }
                 FF();
             }
@@ -407,6 +431,36 @@ namespace WpfPlayer.ViewModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        protected virtual void OnSongStarted(EventArgs e)
+        {
+            SongStarted?.Invoke(this, e);
+        }
+
+        protected virtual void OnSongPaused(EventArgs e)
+        {
+            SongPaused?.Invoke(this, e);
+        }
+
+        protected virtual void OnSongResumed(EventArgs e)
+        {
+            SongResumed?.Invoke(this, e);
+        }
+
+        protected virtual void OnThumbnailChanged(ThumbnailChangedEventArgs e)
+        {
+            ThumbnailChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<EventArgs> SongStarted;
+        public event EventHandler<EventArgs> SongPaused;
+        public event EventHandler<EventArgs> SongResumed;
+        public event EventHandler<ThumbnailChangedEventArgs> ThumbnailChanged;
+    }
+
+    public class ThumbnailChangedEventArgs : EventArgs
+    {
+        public string Path { get; set; }
     }
 
     public class ExtendedTreeView : TreeView
