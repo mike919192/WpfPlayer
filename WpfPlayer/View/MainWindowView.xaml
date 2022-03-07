@@ -132,7 +132,20 @@
                     Width="64" Height="64">
                 <Image Source="pack://application:,,,/WpfPlayer;component/resources/ff.png"/>
             </Button>
-            
+
+            <Button Grid.Row="0" Grid.Column="1" 
+                    x:Name="ShuffleButton" 
+                    HorizontalAlignment="Left" 
+                    Margin="215,0,0,38" 
+                    VerticalAlignment="Bottom" 
+                    Command="{Binding ShuffleButton}" 
+                    Background="#00DDDDDD" 
+                    BorderBrush="#00707070" 
+                    Foreground="#00000000" 
+                    Width="40" Height="40">
+                <Image Source="{Binding ShuffleIcon}"/>
+            </Button>
+
             <ProgressBar Grid.Row="0" Grid.Column="1" 
                          HorizontalAlignment="Stretch" 
                          Height="18" Margin="0,0,80,10" 

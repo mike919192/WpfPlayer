@@ -139,7 +139,10 @@ namespace WpfPlayer.Model
             SongStartedEventArgs args = new SongStartedEventArgs
             {
                 Path = Path.GetDirectoryName(currentTrackFile),
-                Filename = Path.GetFileName(currentTrackFile)
+                Filename = Path.GetFileName(currentTrackFile),
+                Artist = ArtistString,
+                Album = AlbumString,
+                Title = SongTitleString
             };
             OnSongStarted(args);
         }
@@ -147,6 +150,11 @@ namespace WpfPlayer.Model
         public void Pause()
         {
             outputDevice.Pause();
+        }
+
+        public void Resume()
+        {
+            outputDevice.Play();
         }
 
         public void Stop()
@@ -245,7 +253,9 @@ namespace WpfPlayer.Model
     public class SongStartedEventArgs : EventArgs
     {
         public string Path { get; set; }
-
         public string Filename { get; set; }
+        public string Artist { get; set; }
+        public string Album { get; set; }
+        public string Title { get; set; }
     }
 }

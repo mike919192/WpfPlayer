@@ -50,6 +50,12 @@ namespace WpfPlayer
             MWVM.SongStarted += MWVM_SongStarted;
             MWVM.ThumbnailChanged += MWVM_ThumbnailChanged;
             MWVM.SongPaused += MWVM_SongPaused;
+            MWVM.SongResumed += MWVM_SongResumed;
+        }
+
+        private void MWVM_SongResumed(object sender, EventArgs e)
+        {
+            smtci.PlaybackStatus = MediaPlaybackStatus.Playing;
         }
 
         private void MWVM_SongPaused(object sender, EventArgs e)
@@ -73,13 +79,13 @@ namespace WpfPlayer
             //smtci.DisplayUpdater.Update();
         }
 
-        private void MWVM_SongStarted(object sender, EventArgs e)
+        private void MWVM_SongStarted(object sender, SongStartedVMEventArgs e)
         {
             smtci.PlaybackStatus = MediaPlaybackStatus.Playing;
 
-            smtci.DisplayUpdater.Type = MediaPlaybackType.Music;
-            smtci.DisplayUpdater.MusicProperties.Artist = MWVM.ArtistString;
-            smtci.DisplayUpdater.MusicProperties.Title = MWVM.SongTitleString;
+            //smtci.DisplayUpdater.Type = MediaPlaybackType.Music;
+            smtci.DisplayUpdater.MusicProperties.Artist = e.Artist;
+            smtci.DisplayUpdater.MusicProperties.Title = e.Title;
 
             smtci.DisplayUpdater.Update();
         }

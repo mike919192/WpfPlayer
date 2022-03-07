@@ -15,6 +15,8 @@
     <None Remove="Resources\play_white.png" />
     <None Remove="Resources\rew.png" />
     <None Remove="Resources\rew_white.png" />
+    <None Remove="Resources\shuffle.png" />
+    <None Remove="Resources\shuffle_active.png" />
     <None Remove="Resources\volume.png" />
     <None Remove="View\pause.png" />
     <None Remove="View\play.png" />
@@ -35,6 +37,8 @@
     <Resource Include="Resources\play_white.png" />
     <Resource Include="Resources\rew.png" />
     <Resource Include="Resources\rew_white.png" />
+    <Resource Include="Resources\shuffle.png" />
+    <Resource Include="Resources\shuffle_active.png" />
     <Resource Include="Resources\volume.png" />
     <Resource Include="View\Music-icon.ico" />
     <Resource Include="Resources\pause.png" />

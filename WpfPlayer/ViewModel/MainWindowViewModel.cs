@@ -20,6 +20,8 @@ namespace WpfPlayer.ViewModel
         private bool _positionSliderMouseDown = false;
         public object SelectedTreeViewItem { get; set; }
 
+        private List<int> _playOrder = new List<int>();
+
         private List<string> _playlist = new List<string>();
         public List<string> Playlist
         {
@@ -73,6 +75,18 @@ namespace WpfPlayer.ViewModel
             }
         }
 
+        private ShuffleEnum _shuffleState;
+        private string _shuffleIcon;
+        public string ShuffleIcon
+        {
+            get => _shuffleIcon;
+            set
+            {
+                _shuffleIcon = value;
+                OnPropertyChanged(nameof(ShuffleIcon));
+            }
+        }
+
         private void SetPlayPauseIcon(PlayPauseEnum playPauseIn)
         {
             if (playPauseIn == PlayPauseEnum.Play)
@@ -87,9 +101,26 @@ namespace WpfPlayer.ViewModel
             }
         }
 
+        private void SetShuffleIcon(ShuffleEnum shuffleIn)
+        {
+            if (shuffleIn == ShuffleEnum.On)
+            {
+                ShuffleIcon = "pack://application:,,,/WpfPlayer;component/resources/shuffle_active.png";
+            }
+            else
+            {
+                ShuffleIcon = "pack://application:,,,/WpfPlayer;component/resources/shuffle.png";
+            }
+        }
+
         private enum PlayPauseEnum
         {
             Play, Pause
+        }
+
+        private enum ShuffleEnum
+        {
+            On, Off
         }
 
         private double _volumeValue;
@@ -216,8 +247,14 @@ namespace WpfPlayer.ViewModel
             ProgressControlButton = new RelayCommand(o => ProgressControlButtonMouseDown());
             LoadDirButton = new RelayCommand(o => LoadDir(), o => EnableLoadDirButton);
             PlayTrackButton = new RelayCommand(o => PlayTrack(), o => EnablePlayTrackButton);
+            ShuffleButton = new RelayCommand(o => ToggleShuffle(), o => EnableShuffleButton);
             XButton = new RelayCommand(o => Closing());
+            
             SetPlayPauseIcon(PlayPauseEnum.Play);
+            _shuffleState = Properties.Settings.Default.ShuffleState ? ShuffleEnum.On : ShuffleEnum.Off;
+            SetShuffleIcon(_shuffleState);
+            
+
             VolumeValue = Properties.Settings.Default.Volume;
             ProgressValue = 0.0;
 
@@ -265,20 +302,20 @@ namespace WpfPlayer.ViewModel
             if (_playlistPosition == _playlist.Count - 2)
             {
                 _playlistPosition++;
-                musicEngine.Play(_playlist[_playlistPosition], null);
+                musicEngine.Play(_playlist[_playOrder[_playlistPosition]], null);
             }
             else
             {
                 _playlistPosition++;
-                musicEngine.Play(_playlist[_playlistPosition], _playlist[_playlistPosition + 1]);
+                musicEngine.Play(_playlist[_playOrder[_playlistPosition]], _playlist[_playOrder[_playlistPosition + 1]]);
             }
         }
 
         private void MusicEngine_SongStarted(object sender, SongStartedEventArgs e)
         {
-            ArtistString = musicEngine.ArtistString;
-            AlbumString = musicEngine.AlbumString;
-            SongTitleString = musicEngine.SongTitleString;
+            ArtistString = e.Artist;
+            AlbumString = e.Album;
+            SongTitleString = e.Title;
 
             if (File.Exists(e.Path + @"\folder.jpg"))
                 DisplayedImagePath = new Uri(e.Path + @"\folder.jpg");
@@ -289,9 +326,15 @@ namespace WpfPlayer.ViewModel
             else
                 DisplayedImagePath = null;
 
-            SelectedPlaylistPosition = _playlistPosition;
+            SelectedPlaylistPosition = _playOrder[_playlistPosition];
 
-            OnSongStarted(new EventArgs());
+            SongStartedVMEventArgs args = new SongStartedVMEventArgs
+            {
+                Artist = e.Artist,
+                Title = e.Title
+            };
+
+            OnSongStarted(args);
         }
 
         //Sets up Buttons
@@ -305,8 +348,10 @@ namespace WpfPlayer.ViewModel
         public ICommand SetPositionButton { get; private set; }
         public ICommand LoadDirButton { get; private set; }
         public ICommand PlayTrackButton { get; private set; }
+        public ICommand ShuffleButton { get; private set; }
         private bool EnableLoadDirButton { get; set; } = true;
         private bool EnablePlayTrackButton { get; set; } = true;
+        private bool EnableShuffleButton { get; set; } = true;
         public ICommand XButton { get; private set; }
 
         private void Closing()
@@ -314,21 +359,42 @@ namespace WpfPlayer.ViewModel
             musicEngine.Stop();
             
             Properties.Settings.Default.Volume = VolumeValue;
+            Properties.Settings.Default.ShuffleState = _shuffleState == ShuffleEnum.On;
             Properties.Settings.Default.Save();
+        }
+
+        private void ToggleShuffle()
+        {
+            if (_shuffleState == ShuffleEnum.On)
+                _shuffleState = ShuffleEnum.Off;
+            else
+                _shuffleState = ShuffleEnum.On;
+            SetShuffleIcon(_shuffleState);
         }
 
         private void PlayPause()
         {
-            if (musicEngine.IsPlaying == false)
+            //track is paused
+            if (musicEngine.IsPaused == true)
+            {
+                musicEngine.Resume();
+                if (dispatcherTimer.IsEnabled == false)
+                    dispatcherTimer.Start();
+                SetPlayPauseIcon(PlayPauseEnum.Pause);
+                OnSongResumed(new EventArgs());
+            }
+            //no track is loaded
+            else if (musicEngine.IsPlaying == false)
             {
                 if (_playlistPosition == _playlist.Count - 1)
-                    musicEngine.Play(_playlist[_playlistPosition], null);
+                    musicEngine.Play(_playlist[_playOrder[_playlistPosition]], null);
                 else
-                    musicEngine.Play(_playlist[_playlistPosition], _playlist[_playlistPosition + 1]);
+                    musicEngine.Play(_playlist[_playOrder[_playlistPosition]], _playlist[_playOrder[_playlistPosition + 1]]);
                 if (dispatcherTimer.IsEnabled == false)
                     dispatcherTimer.Start();
                 SetPlayPauseIcon(PlayPauseEnum.Pause);
             }
+            //track is playing
             else
             {
                 musicEngine.Pause();
@@ -358,28 +424,55 @@ namespace WpfPlayer.ViewModel
             }
             
             _playlist = ((Folder)SelectedTreeViewItem).GetFiles(SearchOption.AllDirectories);
+            if (_shuffleState == ShuffleEnum.On)
+                _playOrder = shuffleList(Enumerable.Range(0, _playlist.Count).ToList());
+            else
+                _playOrder = Enumerable.Range(0, _playlist.Count).ToList();
+
             OnPropertyChanged(nameof(Playlist));
 
             PlayPause();
         }
+
+        private List<int> shuffleList(List<int> listIn)
+        {
+            List<int> listOut = new List<int>();
+
+            Random rnd = new Random();
+
+            while(listIn.Count > 0)
+            {
+                int index = rnd.Next(listIn.Count);
+                listOut.Add(listIn[index]);
+                listIn.RemoveAt(index);
+            }
+
+            return listOut;
+        }
+
+        private List<int> shuffleList(int firstElement, List<int> listIn)
+        {
+            List<int> listOut = new List<int>();
+
+            int firstIndex = listIn.FindIndex(t => t == firstElement);
+            listOut.Add(listIn[firstIndex]);
+            listIn.RemoveAt(firstIndex);
+
+            Random rnd = new Random();
+
+            while (listIn.Count > 0)
+            {
+                int index = rnd.Next(listIn.Count);
+                listOut.Add(listIn[index]);
+                listIn.RemoveAt(index);
+            }
+
+            return listOut;
+        }
         
         private void PlayTrack()
         {
-            if (SelectedPlaylistPosition == _playlistPosition)
-            {
-                return;
-            }
-            else if (SelectedPlaylistPosition == _playlistPosition + 1)
-            {
-                if (musicEngine.IsPaused)
-                {
-                    if (dispatcherTimer.IsEnabled == false)
-                        dispatcherTimer.Start();
-                    SetPlayPauseIcon(PlayPauseEnum.Pause);
-                }
-                FF();
-            }
-            else
+            if (_shuffleState == ShuffleEnum.On)
             {
                 if (musicEngine.IsPlaying || musicEngine.IsPaused)
                 {
@@ -387,9 +480,41 @@ namespace WpfPlayer.ViewModel
                     //_playlistPosition = 0;
                     musicEngine.Stop();
                 }
-                _playlistPosition = SelectedPlaylistPosition;
+
+                _playlistPosition = 0;
+                _playOrder = shuffleList(SelectedPlaylistPosition, Enumerable.Range(0, _playlist.Count).ToList());
 
                 PlayPause();
+            }
+            else
+            {
+                if (SelectedPlaylistPosition == _playOrder[_playlistPosition])
+                {
+                    return;
+                }
+                else if (SelectedPlaylistPosition == _playOrder[_playlistPosition + 1])
+                {
+                    if (musicEngine.IsPaused)
+                    {
+                        if (dispatcherTimer.IsEnabled == false)
+                            dispatcherTimer.Start();
+                        SetPlayPauseIcon(PlayPauseEnum.Pause);
+                    }
+                    FF();
+                }
+                else
+                {
+                    if (musicEngine.IsPlaying || musicEngine.IsPaused)
+                    {
+                        //_playlist.Clear();
+                        //_playlistPosition = 0;
+                        musicEngine.Stop();
+                    }
+                    
+                    _playlistPosition = SelectedPlaylistPosition;
+
+                    PlayPause();
+                }
             }
         }
 
@@ -432,7 +557,7 @@ namespace WpfPlayer.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected virtual void OnSongStarted(EventArgs e)
+        protected virtual void OnSongStarted(SongStartedVMEventArgs e)
         {
             SongStarted?.Invoke(this, e);
         }
@@ -452,7 +577,7 @@ namespace WpfPlayer.ViewModel
             ThumbnailChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<EventArgs> SongStarted;
+        public event EventHandler<SongStartedVMEventArgs> SongStarted;
         public event EventHandler<EventArgs> SongPaused;
         public event EventHandler<EventArgs> SongResumed;
         public event EventHandler<ThumbnailChangedEventArgs> ThumbnailChanged;
@@ -461,6 +586,12 @@ namespace WpfPlayer.ViewModel
     public class ThumbnailChangedEventArgs : EventArgs
     {
         public string Path { get; set; }
+    }
+
+    public class SongStartedVMEventArgs : EventArgs
+    {
+        public string Artist { get; set; }
+        public string Title { get; set; }
     }
 
     public class ExtendedTreeView : TreeView

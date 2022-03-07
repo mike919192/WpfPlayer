@@ -34,5 +34,17 @@ namespace WpfPlayer.Properties {
                 this["Volume"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShuffleState {
+            get {
+                return ((bool)(this["ShuffleState"]));
+            }
+            set {
+                this["ShuffleState"] = value;
+            }
+        }
     }
 }
