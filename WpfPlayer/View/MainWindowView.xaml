@@ -146,6 +146,19 @@
                 <Image Source="{Binding ShuffleIcon}"/>
             </Button>
 
+            <Button Grid.Row="0" Grid.Column="1" 
+                    x:Name="OptionsButton" 
+                    HorizontalAlignment="Right" 
+                    Margin="0,10,10,0" 
+                    VerticalAlignment="Top" 
+                    Command="{Binding OptionsButton}" 
+                    Background="#00DDDDDD" 
+                    BorderBrush="#00707070" 
+                    Foreground="#00000000" 
+                    Width="32" Height="32">
+                <Image Source="pack://application:,,,/WpfPlayer;component/resources/options.png"/>
+            </Button>
+
             <ProgressBar Grid.Row="0" Grid.Column="1" 
                          HorizontalAlignment="Stretch" 
                          Height="18" Margin="0,0,80,10" 

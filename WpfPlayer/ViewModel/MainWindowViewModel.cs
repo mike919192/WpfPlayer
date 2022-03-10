@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using WpfPlayer.Model;
+using WpfPlayer.View;
 
 namespace WpfPlayer.ViewModel
 {
@@ -248,6 +249,7 @@ namespace WpfPlayer.ViewModel
             LoadDirButton = new RelayCommand(o => LoadDir(), o => EnableLoadDirButton);
             PlayTrackButton = new RelayCommand(o => PlayTrack(), o => EnablePlayTrackButton);
             ShuffleButton = new RelayCommand(o => ToggleShuffle(), o => EnableShuffleButton);
+            OptionsButton = new RelayCommand(o => OpenOptions(), o => EnableOptionsButton);
             XButton = new RelayCommand(o => Closing());
             
             SetPlayPauseIcon(PlayPauseEnum.Play);
@@ -349,9 +351,11 @@ namespace WpfPlayer.ViewModel
         public ICommand LoadDirButton { get; private set; }
         public ICommand PlayTrackButton { get; private set; }
         public ICommand ShuffleButton { get; private set; }
+        public ICommand OptionsButton { get; private set; }
         private bool EnableLoadDirButton { get; set; } = true;
         private bool EnablePlayTrackButton { get; set; } = true;
         private bool EnableShuffleButton { get; set; } = true;
+        private bool EnableOptionsButton { get; set; } = true;
         public ICommand XButton { get; private set; }
 
         private void Closing()
@@ -363,12 +367,33 @@ namespace WpfPlayer.ViewModel
             Properties.Settings.Default.Save();
         }
 
+        private void OpenOptions()
+        {
+            var OptionsVM = new OptionsViewModel();
+            OptionsVM.LoadedDirectory = Path.Combine(LoadedFolder.ParentDirectory, LoadedFolder.FolderName);
+            var OptionsView = new OptionsView()
+            {
+                DataContext = OptionsVM
+            };
+            OptionsView.Show();
+        }
+
         private void ToggleShuffle()
         {
             if (_shuffleState == ShuffleEnum.On)
+            {
                 _shuffleState = ShuffleEnum.Off;
+                _playlistPosition = _playOrder[_playlistPosition];
+                _playOrder = Enumerable.Range(0, _playlist.Count).ToList();
+            }
             else
+            {
                 _shuffleState = ShuffleEnum.On;
+                _playOrder = shuffleList(_playOrder[_playlistPosition], Enumerable.Range(0, _playlist.Count).ToList());
+                _playlistPosition = 0;
+            }
+            if (_playlistPosition + 1 < _playOrder.Count)
+                musicEngine.LoadNextTrack(_playlist[_playOrder[_playlistPosition + 1]]);
             SetShuffleIcon(_shuffleState);
         }
 

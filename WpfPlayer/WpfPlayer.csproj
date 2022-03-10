@@ -9,10 +9,13 @@
   <ItemGroup>
     <None Remove="Resources\ff.png" />
     <None Remove="Resources\ff_white.png" />
+    <None Remove="Resources\folder.png" />
     <None Remove="Resources\Music-icon-512.png" />
     <None Remove="Resources\Music-icon.ico" />
+    <None Remove="Resources\options.png" />
     <None Remove="Resources\pause_white.png" />
     <None Remove="Resources\play_white.png" />
+    <None Remove="Resources\refresh.png" />
     <None Remove="Resources\rew.png" />
     <None Remove="Resources\rew_white.png" />
     <None Remove="Resources\shuffle.png" />
@@ -32,9 +35,12 @@
   <ItemGroup>
     <Resource Include="Resources\ff.png" />
     <Resource Include="Resources\ff_white.png" />
+    <Resource Include="Resources\folder.png" />
     <Resource Include="Resources\Music-icon-512.png" />
+    <Resource Include="Resources\options.png" />
     <Resource Include="Resources\pause_white.png" />
     <Resource Include="Resources\play_white.png" />
+    <Resource Include="Resources\refresh.png" />
     <Resource Include="Resources\rew.png" />
     <Resource Include="Resources\rew_white.png" />
     <Resource Include="Resources\shuffle.png" />

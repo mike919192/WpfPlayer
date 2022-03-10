@@ -20,8 +20,7 @@ namespace WpfPlayer
     public partial class App : Application
     {
         public MainWindowViewModel MWVM;
-
-        SystemMediaTransportControls smtci;
+        private SystemMediaTransportControls smtci;
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);

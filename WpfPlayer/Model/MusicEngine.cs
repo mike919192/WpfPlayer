@@ -184,10 +184,14 @@ namespace WpfPlayer.Model
 
         public void LoadNextTrack(string nextTrackFile)
         {
-            _nextTrackFile = nextTrackFile;
-            trd = new Thread(new ThreadStart(LoadNextTrackThread));
-            trd.IsBackground = true;
-            trd.Start();
+            //check if new next track is the same as what is already loaded
+            if (_nextTrackFile != nextTrackFile)
+            {
+                _nextTrackFile = nextTrackFile;
+                trd = new Thread(new ThreadStart(LoadNextTrackThread));
+                trd.IsBackground = true;
+                trd.Start();
+            }
         }
 
         private void LoadNextTrackThread()
