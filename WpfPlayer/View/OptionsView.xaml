@@ -9,11 +9,17 @@
         d:DataContext="{d:DesignInstance Type=viewmodel:OptionsViewModel}"
         Title="OptionsView" Height="250" Width="500">
     <Grid>
-        <TextBox x:Name="textBox" Margin="10,44,84,0" Text="{Binding LoadedDirectory}" VerticalAlignment="Top" FontSize="14"/>
+        <TextBox x:Name="textBox" 
+                 Margin="10,44,84,0" 
+                 Text="{Binding LoadedDirectory}" 
+                 VerticalAlignment="Top" 
+                 FontSize="14"
+                 IsReadOnly="True"/>
         <Button x:Name="button" 
                 HorizontalAlignment="Right" 
                 Margin="0,38,47,0" 
                 VerticalAlignment="Top" 
+                Command="{Binding RefreshButton}" 
                 Background="#00DDDDDD" 
                 BorderBrush="#00707070" 
                 Foreground="#00000000"
@@ -24,6 +30,7 @@
                 HorizontalAlignment="Right" 
                 Margin="0,38,10,0" 
                 VerticalAlignment="Top" 
+                Command="{Binding OpenDirButton}" 
                 Background="#00DDDDDD" 
                 BorderBrush="#00707070" 
                 Foreground="#00000000"

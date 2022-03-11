@@ -46,5 +46,17 @@ namespace WpfPlayer.Properties {
                 this["ShuffleState"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LoadedDirectory {
+            get {
+                return ((string)(this["LoadedDirectory"]));
+            }
+            set {
+                this["LoadedDirectory"] = value;
+            }
+        }
     }
 }

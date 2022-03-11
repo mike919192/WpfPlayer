@@ -41,7 +41,7 @@ namespace WpfPlayer.Model
             folderName = directoryString.Substring(length + 1);
             parentDirectory = directoryString.Substring(0, length);
 
-            List<string> test = getFiles(directoryString, "*.mp3|*.flac", SearchOption.AllDirectories).ToList();
+            List<string> test = getFiles(directoryString, "*.mp3|*.flac|*.m4a|*.wma", SearchOption.AllDirectories).ToList();
             test.Sort();
             for (int index = 0; index < test.Count; ++index)
             {

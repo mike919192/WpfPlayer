@@ -279,12 +279,7 @@ namespace WpfPlayer.ViewModel
             {
                 string json = File.ReadAllText(jsonFilename);
                 LoadedFolder = JsonConvert.DeserializeObject<Folder>(json);
-            }
-            else
-            {
-                LoadedFolder = new Folder(@"\\192.168.1.145\JMicron\MUSIC");
-                string json = JsonConvert.SerializeObject(LoadedFolder, Formatting.Indented);
-                File.WriteAllText(jsonFilename, json);
+                Properties.Settings.Default.LoadedDirectory = Path.Combine(LoadedFolder.ParentDirectory, LoadedFolder.FolderName);
             }
         }
 
@@ -370,7 +365,8 @@ namespace WpfPlayer.ViewModel
         private void OpenOptions()
         {
             var OptionsVM = new OptionsViewModel();
-            OptionsVM.LoadedDirectory = Path.Combine(LoadedFolder.ParentDirectory, LoadedFolder.FolderName);
+            if (LoadedFolder != null)
+                OptionsVM.LoadedDirectory = Properties.Settings.Default.LoadedDirectory;
             var OptionsView = new OptionsView()
             {
                 DataContext = OptionsVM
@@ -383,16 +379,22 @@ namespace WpfPlayer.ViewModel
             if (_shuffleState == ShuffleEnum.On)
             {
                 _shuffleState = ShuffleEnum.Off;
-                _playlistPosition = _playOrder[_playlistPosition];
-                _playOrder = Enumerable.Range(0, _playlist.Count).ToList();
+                if (_playlist.Count > 0)
+                {
+                    _playlistPosition = _playOrder[_playlistPosition];
+                    _playOrder = Enumerable.Range(0, _playlist.Count).ToList();
+                }
             }
             else
             {
                 _shuffleState = ShuffleEnum.On;
-                _playOrder = shuffleList(_playOrder[_playlistPosition], Enumerable.Range(0, _playlist.Count).ToList());
-                _playlistPosition = 0;
+                if (_playlist.Count > 0)
+                {
+                    _playOrder = shuffleList(_playOrder[_playlistPosition], Enumerable.Range(0, _playlist.Count).ToList());
+                    _playlistPosition = 0;
+                }
             }
-            if (_playlistPosition + 1 < _playOrder.Count)
+            if (_playlist.Count > 0 && _playlistPosition + 1 < _playOrder.Count)
                 musicEngine.LoadNextTrack(_playlist[_playOrder[_playlistPosition + 1]]);
             SetShuffleIcon(_shuffleState);
         }
