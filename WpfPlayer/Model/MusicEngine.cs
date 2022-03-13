@@ -184,8 +184,12 @@ namespace WpfPlayer.Model
 
         public void LoadNextTrack(string nextTrackFile)
         {
+            if (nextTrackFile == null)
+            {
+                _nextTrackFile = null;
+            }
             //check if new next track is the same as what is already loaded
-            if (_nextTrackFile != nextTrackFile)
+            else if (_nextTrackFile != nextTrackFile)
             {
                 _nextTrackFile = nextTrackFile;
                 trd = new Thread(new ThreadStart(LoadNextTrackThread));

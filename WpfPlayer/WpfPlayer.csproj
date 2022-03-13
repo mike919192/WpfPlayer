@@ -18,6 +18,7 @@
     <None Remove="Resources\refresh.png" />
     <None Remove="Resources\rew.png" />
     <None Remove="Resources\rew_white.png" />
+    <None Remove="Resources\save.png" />
     <None Remove="Resources\shuffle.png" />
     <None Remove="Resources\shuffle_active.png" />
     <None Remove="Resources\volume.png" />
@@ -43,6 +44,7 @@
     <Resource Include="Resources\refresh.png" />
     <Resource Include="Resources\rew.png" />
     <Resource Include="Resources\rew_white.png" />
+    <Resource Include="Resources\save.png" />
     <Resource Include="Resources\shuffle.png" />
     <Resource Include="Resources\shuffle_active.png" />
     <Resource Include="Resources\volume.png" />
