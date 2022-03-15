@@ -20,6 +20,7 @@ namespace WpfPlayer.ViewModel
     {
         private bool _positionSliderMouseDown = false;
         public object SelectedTreeViewItem { get; set; }
+        private string _playlistDirectory;
 
         private Playlist _playlist = new Playlist();
         public List<string> Playlist
@@ -245,7 +246,7 @@ namespace WpfPlayer.ViewModel
             SetPlayPauseIcon(PlayPauseEnum.Play);
             //_playlist.ShuffleState = Properties.Settings.Default.ShuffleState ? ShuffleEnum.On : ShuffleEnum.Off;
             //SetShuffleIcon(_playlist.ShuffleState);
-            
+            _playlistDirectory = Properties.Settings.Default.PlaylistDirectory;
 
             VolumeValue = Properties.Settings.Default.Volume;
             ProgressValue = 0.0;
@@ -273,10 +274,13 @@ namespace WpfPlayer.ViewModel
             }
 
             var jsonFilename2 = Path.Combine(appdataDir, "current.jsonplay");
-            string json2 = File.ReadAllText(jsonFilename2);
+            if (File.Exists(jsonFilename2))
+            {
+                string json2 = File.ReadAllText(jsonFilename2);
 
-            //var shuffleState = _playlist.ShuffleState;
-            _playlist = JsonConvert.DeserializeObject<Playlist>(json2);
+                //var shuffleState = _playlist.ShuffleState;
+                _playlist = JsonConvert.DeserializeObject<Playlist>(json2);
+            }
             _playlist.InitShuffle(Properties.Settings.Default.ShuffleState ? ShuffleEnum.On : ShuffleEnum.Off);
             SetShuffleIcon(_playlist.ShuffleState);
         }
@@ -286,12 +290,13 @@ namespace WpfPlayer.ViewModel
             using (var saveFileDialog = new System.Windows.Forms.SaveFileDialog())
             {
                 saveFileDialog.Filter = "json playlist files (*.jsonplay)|*.jsonplay|All files (*.*)|*.*";
-                saveFileDialog.FilterIndex = 2;
-                saveFileDialog.RestoreDirectory = true;
+                saveFileDialog.FilterIndex = 1;
+                saveFileDialog.InitialDirectory = _playlistDirectory;
 
                 if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     string json = JsonConvert.SerializeObject(_playlist, Formatting.Indented);
+                    _playlistDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
 
                     File.WriteAllText(saveFileDialog.FileName, json);
                 }
@@ -302,10 +307,9 @@ namespace WpfPlayer.ViewModel
         {
             using (var openFileDialog = new System.Windows.Forms.OpenFileDialog())
             {
-                openFileDialog.InitialDirectory = "c:\\";
                 openFileDialog.Filter = "json playlist files (*.jsonplay)|*.jsonplay|All files (*.*)|*.*";
-                openFileDialog.FilterIndex = 2;
-                openFileDialog.RestoreDirectory = true;
+                openFileDialog.FilterIndex = 1;
+                openFileDialog.InitialDirectory = _playlistDirectory;
 
                 if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
@@ -316,6 +320,7 @@ namespace WpfPlayer.ViewModel
                     }
 
                     string json = File.ReadAllText(openFileDialog.FileName);
+                    _playlistDirectory = Path.GetDirectoryName(openFileDialog.FileName);
 
                     var shuffleState = _playlist.ShuffleState;
                     _playlist = JsonConvert.DeserializeObject<Playlist>(json);
@@ -405,6 +410,7 @@ namespace WpfPlayer.ViewModel
 
             Properties.Settings.Default.Volume = VolumeValue;
             Properties.Settings.Default.ShuffleState = _playlist.ShuffleState == ShuffleEnum.On;
+            Properties.Settings.Default.PlaylistDirectory = _playlistDirectory;
             Properties.Settings.Default.Save();
         }
 

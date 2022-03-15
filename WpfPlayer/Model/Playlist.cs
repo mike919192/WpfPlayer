@@ -118,19 +118,14 @@ namespace WpfPlayer.Model
             if (_shuffleState == ShuffleEnum.Off)
             {
                 if (PlaylistItems.Count > 0)
-                {
-                    _playlistPosition = _playOrder[_playlistPosition];
                     _playOrder = Enumerable.Range(0, PlaylistItems.Count).ToList();
-                }
             }
             else
             {
                 if (PlaylistItems.Count > 0)
-                {
                     _playOrder = shuffleList(Enumerable.Range(0, PlaylistItems.Count).ToList());
-                    _playlistPosition = 0;
-                }
             }
+            _playlistPosition = 0;
         }
 
         public void PlaylistFinished()

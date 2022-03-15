@@ -58,5 +58,17 @@ namespace WpfPlayer.Properties {
                 this["LoadedDirectory"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PlaylistDirectory {
+            get {
+                return ((string)(this["PlaylistDirectory"]));
+            }
+            set {
+                this["PlaylistDirectory"] = value;
+            }
+        }
     }
 }
