@@ -5,9 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfPlayer.View"
         mc:Ignorable="d"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:viewmodel="clr-namespace:WpfPlayer.ViewModel"
         d:DataContext="{d:DesignInstance Type=viewmodel:OptionsViewModel}"
         Title="OptionsView" Height="250" Width="500">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding XButton}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
     <Grid>
         <TextBox x:Name="textBox" 
                  Margin="10,44,84,0" 
@@ -38,6 +46,7 @@
             <Image Source="pack://application:,,,/WpfPlayer;component/resources/folder.png"/>
         </Button>
         <Label x:Name="label" Content="Loaded Directory" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="14"/>
+        <ProgressBar HorizontalAlignment="Stretch" Height="10" Margin="10,70,10,0" VerticalAlignment="Top" IsIndeterminate="True" Visibility="{Binding ProgressBarVisible}"/>
 
     </Grid>
 </Window>
