@@ -3,6 +3,7 @@ using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -29,15 +30,21 @@ namespace WpfPlayer.Model
 
         private string _nextTrackFile;
 
+        private BackgroundWorker fileWorker = new BackgroundWorker();
+
         public double Position
         {
             get
             {
-                return (double)audioFile.Position / (double)audioFile.Length;
+                if (audioFile == null)
+                    return 0.0;
+                else
+                    return (double)audioFile.Position / (double)audioFile.Length;
             }
             set
             {
-                audioFile.Position = (long)(value * audioFile.Length);
+                if (audioFile != null)
+                    audioFile.Position = (long)(value * audioFile.Length);
             }
         }
 
@@ -45,7 +52,10 @@ namespace WpfPlayer.Model
         {
             get
             {
-                return (1 - Position) * audioFile.TotalTime;
+                if (audioFile == null)
+                    return new TimeSpan();
+                else
+                    return (1 - Position) * audioFile.TotalTime;
             }
         }
 
@@ -88,63 +98,149 @@ namespace WpfPlayer.Model
 
         public MusicEngine()
         {
-
+            fileWorker.DoWork += FileWorker_DoWork;
+            fileWorker.RunWorkerCompleted += FileWorker_RunWorkerCompleted;
+            //fileWorker.WorkerSupportsCancellation = true;
         }
 
-        public void Play(string currentTrackFile, string nextTrackFile)
+        private void FileWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            
+            var workerResult = (fileWorkerResult)e.Result;
+            ArtistString = workerResult.artistString;
+            AlbumString = workerResult.albumString;
+            SongTitleString = workerResult.songTitleString;
 
-            if (outputDevice == null)
+            audioFile = workerResult.audioFile;
+            outputDevice.Init(audioFile);
+
+            //_nextTrackFile = nextTrackFile;
+            if (workerResult.workerArgs.nextTrackFile != null)
             {
-                outputDevice = new WaveOutEvent();
-                outputDevice.PlaybackStopped += OnPlaybackStopped;
+                LoadNextTrack(workerResult.workerArgs.nextTrackFile);
+                //trd = new Thread(new ThreadStart(LoadNextTrackThread));
+                //trd.IsBackground = true;
+                //trd.Start();
             }
-            if (audioFile == null)
+            else
             {
-                if (currentTrackFile == nextAudioFile?.FileName)
-                {
-                    audioFile = nextAudioFile;
-                    ArtistString = _nextArtistString;
-                    AlbumString = _nextAlbumString;
-                    SongTitleString = _nextSongTitleString;
-                }
-                else
-                {
-                    audioFile = new AudioFileReader(currentTrackFile);
-                    ShellObject musicFile = ShellObject.FromParsingName(currentTrackFile);
-                    ArtistString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Music.AlbumArtist));
-                    AlbumString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Music.AlbumTitle));
-                    SongTitleString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Title));
-                }
-
-                outputDevice.Init(audioFile);
-
-                //_nextTrackFile = nextTrackFile;
-                if (nextTrackFile != null)
-                {
-                    LoadNextTrack(nextTrackFile);
-                    //trd = new Thread(new ThreadStart(LoadNextTrackThread));
-                    //trd.IsBackground = true;
-                    //trd.Start();
-                }
-                else
-                {
-                    _nextTrackFile = nextTrackFile;
-                }
+                _nextTrackFile = workerResult.workerArgs.nextTrackFile;
             }
+            //}
             outputDevice.Volume = (float)_volume;
             outputDevice.Play();
 
             SongStartedEventArgs args = new SongStartedEventArgs
             {
-                Path = Path.GetDirectoryName(currentTrackFile),
-                Filename = Path.GetFileName(currentTrackFile),
+                Path = Path.GetDirectoryName(workerResult.workerArgs.currentTrackFile),
+                Filename = Path.GetFileName(workerResult.workerArgs.currentTrackFile),
                 Artist = ArtistString,
                 Album = AlbumString,
                 Title = SongTitleString
             };
             OnSongStarted(args);
+        }
+
+        private void FileWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var workerArgs = (fileWorkerArgs)e.Argument;
+            var workerResult = new fileWorkerResult();
+
+            if (workerArgs.currentTrackFile == nextAudioFile?.FileName)
+            {
+                workerResult.audioFile = nextAudioFile;
+                workerResult.artistString = _nextArtistString;
+                workerResult.albumString = _nextAlbumString;
+                workerResult.songTitleString = _nextSongTitleString;
+            }
+            else
+            {
+                workerResult.audioFile = new AudioFileReader(workerArgs.currentTrackFile);
+                var musicFile = ShellObject.FromParsingName(workerArgs.currentTrackFile);
+                workerResult.artistString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Music.AlbumArtist));
+                workerResult.albumString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Music.AlbumTitle));
+                workerResult.songTitleString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Title));
+            }
+            workerResult.workerArgs = workerArgs;
+
+            e.Result = workerResult;
+        }
+
+        struct fileWorkerArgs
+        {
+            public string currentTrackFile;
+            public string nextTrackFile;
+        }
+
+        struct fileWorkerResult
+        {
+            public AudioFileReader audioFile;
+            public string artistString;
+            public string albumString;
+            public string songTitleString;
+            public fileWorkerArgs workerArgs;
+        }
+
+        public void Play(string currentTrackFile, string nextTrackFile)
+        {
+            if (outputDevice == null)
+            {
+                outputDevice = new WaveOutEvent();
+                outputDevice.PlaybackStopped += OnPlaybackStopped;
+            }
+
+            var workerArgs = new fileWorkerArgs
+            {
+                currentTrackFile = currentTrackFile,
+                nextTrackFile = nextTrackFile
+            };
+
+            fileWorker.RunWorkerAsync(workerArgs);
+
+            //if (audioFile == null)
+            //{
+            //    if (currentTrackFile == nextAudioFile?.FileName)
+            //    {
+            //        audioFile = nextAudioFile;
+            //        ArtistString = _nextArtistString;
+            //        AlbumString = _nextAlbumString;
+            //        SongTitleString = _nextSongTitleString;
+            //    }
+            //    else
+            //    {
+            //        audioFile = new AudioFileReader(currentTrackFile);
+            //        ShellObject musicFile = ShellObject.FromParsingName(currentTrackFile);
+            //        ArtistString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Music.AlbumArtist));
+            //        AlbumString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Music.AlbumTitle));
+            //        SongTitleString = GetValue(musicFile.Properties.GetProperty(SystemProperties.System.Title));
+            //    }
+
+            //    outputDevice.Init(audioFile);
+
+            //    //_nextTrackFile = nextTrackFile;
+            //    if (nextTrackFile != null)
+            //    {
+            //        LoadNextTrack(nextTrackFile);
+            //        //trd = new Thread(new ThreadStart(LoadNextTrackThread));
+            //        //trd.IsBackground = true;
+            //        //trd.Start();
+            //    }
+            //    else
+            //    {
+            //        _nextTrackFile = nextTrackFile;
+            //    }
+            ////}
+            //outputDevice.Volume = (float)_volume;
+            //outputDevice.Play();
+
+            //SongStartedEventArgs args = new SongStartedEventArgs
+            //{
+            //    Path = Path.GetDirectoryName(currentTrackFile),
+            //    Filename = Path.GetFileName(currentTrackFile),
+            //    Artist = ArtistString,
+            //    Album = AlbumString,
+            //    Title = SongTitleString
+            //};
+            //OnSongStarted(args);
         }
 
         public void Pause()

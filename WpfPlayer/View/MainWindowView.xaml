@@ -190,6 +190,7 @@
                          Height="18" Margin="0,0,80,10" 
                          VerticalAlignment="Bottom" 
                          Value="{Binding ProgressValue}" 
+                         IsIndeterminate="{Binding ProgressLoading}"
                          Foreground="#FF066AB0" 
                          Orientation="Horizontal" 
                          Maximum="1"/>

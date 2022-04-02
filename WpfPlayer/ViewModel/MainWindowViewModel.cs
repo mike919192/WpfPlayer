@@ -226,6 +226,17 @@ namespace WpfPlayer.ViewModel
             }
         }
 
+        private bool _progressLoading;
+        public bool ProgressLoading
+        {
+            get => _progressLoading;
+            set
+            {
+                _progressLoading = value;
+                OnPropertyChanged(nameof(ProgressLoading));
+            }
+        }
+
         private MusicEngine musicEngine = new MusicEngine();
 
         public MainWindowViewModel()
@@ -342,12 +353,14 @@ namespace WpfPlayer.ViewModel
             ProgressControlValue = 0.0;
             ProgressValue = 0.0;
             SetPlayPauseIcon(PlayPauseEnum.Play);
+            dispatcherTimer.Stop();
         }
 
         private void MusicEngine_SongFinished(object sender, EventArgs e)
         {
             _playlist.SongFinished();
             musicEngine.Play(_playlist.CurrentSong, _playlist.NextSong);  //nextsong is null if we are on the last song
+            dispatcherTimer.Stop();
         }
 
         private void MusicEngine_SongStarted(object sender, SongStartedEventArgs e)
@@ -372,6 +385,8 @@ namespace WpfPlayer.ViewModel
                 Artist = e.Artist,
                 Title = e.Title
             };
+            dispatcherTimer.Start();
+            ProgressLoading = false;
 
             OnSongStarted(args);
         }
@@ -444,8 +459,8 @@ namespace WpfPlayer.ViewModel
             if (musicEngine.IsPaused == true)
             {
                 musicEngine.Resume();
-                if (dispatcherTimer.IsEnabled == false)
-                    dispatcherTimer.Start();
+                //if (dispatcherTimer.IsEnabled == false)
+                    //dispatcherTimer.Start();
                 SetPlayPauseIcon(PlayPauseEnum.Pause);
                 OnSongResumed(new EventArgs());
             }
@@ -453,16 +468,17 @@ namespace WpfPlayer.ViewModel
             else if (musicEngine.IsPlaying == false)
             {
                 musicEngine.Play(_playlist.CurrentSong, _playlist.NextSong);
-                if (dispatcherTimer.IsEnabled == false)
-                    dispatcherTimer.Start();
+                ProgressLoading = true;
+                //if (dispatcherTimer.IsEnabled == false)
+                //dispatcherTimer.Start();
                 SetPlayPauseIcon(PlayPauseEnum.Pause);
             }
             //track is playing
             else
             {
                 musicEngine.Pause();
-                if (dispatcherTimer.IsEnabled == true)
-                    dispatcherTimer.Stop();
+                //if (dispatcherTimer.IsEnabled == true)
+                    //dispatcherTimer.Stop();
                 SetPlayPauseIcon(PlayPauseEnum.Play);
                 OnSongPaused(new EventArgs());
             }            
