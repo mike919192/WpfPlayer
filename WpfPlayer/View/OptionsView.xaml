@@ -31,7 +31,8 @@
                 Background="#00DDDDDD" 
                 BorderBrush="#00707070" 
                 Foreground="#00000000"
-                Width="32" Height="32">
+                Width="32" Height="32"
+                ToolTip="Refresh Directory">
             <Image Source="pack://application:,,,/WpfPlayer;component/resources/refresh.png"/>
         </Button>
         <Button x:Name="button1"
@@ -42,7 +43,8 @@
                 Background="#00DDDDDD" 
                 BorderBrush="#00707070" 
                 Foreground="#00000000"
-                Width="32" Height="32">
+                Width="32" Height="32"
+                ToolTip="Set Directory">
             <Image Source="pack://application:,,,/WpfPlayer;component/resources/folder.png"/>
         </Button>
         <Label x:Name="label" Content="Loaded Directory" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="14"/>

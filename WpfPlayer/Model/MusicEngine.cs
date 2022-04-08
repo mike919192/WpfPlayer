@@ -74,26 +74,33 @@ namespace WpfPlayer.Model
             }
         }
 
-        public bool IsPlaying
-        {
-            get
-            {
-                if (outputDevice == null)
-                    return false;
-                else
-                    return outputDevice.PlaybackState == PlaybackState.Playing;
-            }
-        }
+        //public bool IsPlaying
+        //{
+        //    get
+        //    {
+        //        if (outputDevice == null)
+        //            return false;
+        //        else
+        //            return outputDevice.PlaybackState == PlaybackState.Playing;
+        //    }
+        //}
 
-        public bool IsPaused
+        //public bool IsPaused
+        //{
+        //    get
+        //    {
+        //        if (outputDevice == null)
+        //            return false;
+        //        else
+        //            return outputDevice.PlaybackState == PlaybackState.Paused;
+        //    }
+        //}
+
+        public PlayerState CurrentState { get; private set; }
+
+        public enum PlayerState
         {
-            get
-            {
-                if (outputDevice == null)
-                    return false;
-                else
-                    return outputDevice.PlaybackState == PlaybackState.Paused;
-            }
+            Stopped, Loading, Playing, Paused
         }
 
         public MusicEngine()
@@ -138,6 +145,7 @@ namespace WpfPlayer.Model
                 Title = SongTitleString
             };
             OnSongStarted(args);
+            CurrentState = PlayerState.Playing;
         }
 
         private void FileWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -194,6 +202,8 @@ namespace WpfPlayer.Model
                 nextTrackFile = nextTrackFile
             };
 
+            CurrentState = PlayerState.Loading;
+
             fileWorker.RunWorkerAsync(workerArgs);
 
             //if (audioFile == null)
@@ -245,11 +255,13 @@ namespace WpfPlayer.Model
 
         public void Pause()
         {
+            CurrentState = PlayerState.Paused;
             outputDevice.Pause();
         }
 
         public void Resume()
         {
+            CurrentState = PlayerState.Playing;
             outputDevice.Play();
         }
 
@@ -267,6 +279,7 @@ namespace WpfPlayer.Model
                 audioFile.Dispose();
                 audioFile = null;
             }
+            CurrentState = PlayerState.Stopped;
         }
 
         private static string GetValue(IShellProperty value)
@@ -317,11 +330,13 @@ namespace WpfPlayer.Model
                 //_playlistPosition++;
                 //OnPropertyChanged(nameof(PlaylistPosition));
                 //Play();
+                CurrentState = PlayerState.Stopped;
                 OnSongFinished(new EventArgs());
             }
             else
             {
                 //dispatcherTimer.Stop();
+                CurrentState = PlayerState.Stopped;
                 OnPlaylistFinished(new EventArgs());
             }
         }

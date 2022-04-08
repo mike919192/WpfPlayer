@@ -215,6 +215,17 @@ namespace WpfPlayer.ViewModel
             }
         }
 
+        private string _windowTitleString = "WpfPlayer";
+        public string WindowTitleString
+        {
+            get => _windowTitleString;
+            set
+            {
+                _windowTitleString = value;
+                OnPropertyChanged(nameof(WindowTitleString));
+            }
+        }
+
         private Folder _loadedFolder;
         public Folder LoadedFolder
         {
@@ -324,7 +335,7 @@ namespace WpfPlayer.ViewModel
 
                 if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    if (musicEngine.IsPlaying || musicEngine.IsPaused)
+                    if (musicEngine.CurrentState == MusicEngine.PlayerState.Playing || musicEngine.CurrentState == MusicEngine.PlayerState.Paused)
                     {
                         _playlist.ClearPlaylist();
                         musicEngine.Stop();
@@ -368,6 +379,7 @@ namespace WpfPlayer.ViewModel
             ArtistString = e.Artist;
             AlbumString = e.Album;
             SongTitleString = e.Title;
+            WindowTitleString = ArtistString + " - " + SongTitleString;
 
             if (File.Exists(e.Path + @"\folder.jpg"))
                 DisplayedImagePath = new Uri(e.Path + @"\folder.jpg");
@@ -456,7 +468,7 @@ namespace WpfPlayer.ViewModel
         private void PlayPause()
         {
             //track is paused
-            if (musicEngine.IsPaused == true)
+            if (musicEngine.CurrentState == MusicEngine.PlayerState.Paused)
             {
                 musicEngine.Resume();
                 //if (dispatcherTimer.IsEnabled == false)
@@ -465,7 +477,7 @@ namespace WpfPlayer.ViewModel
                 OnSongResumed(new EventArgs());
             }
             //no track is loaded
-            else if (musicEngine.IsPlaying == false)
+            else if (musicEngine.CurrentState == MusicEngine.PlayerState.Stopped)
             {
                 musicEngine.Play(_playlist.CurrentSong, _playlist.NextSong);
                 ProgressLoading = true;
@@ -493,7 +505,7 @@ namespace WpfPlayer.ViewModel
 
         private void LoadDir()
         {
-            if (musicEngine.IsPlaying || musicEngine.IsPaused)
+            if (musicEngine.CurrentState == MusicEngine.PlayerState.Playing || musicEngine.CurrentState == MusicEngine.PlayerState.Paused)
             {
                 _playlist.ClearPlaylist();
                 musicEngine.Stop();
@@ -510,7 +522,7 @@ namespace WpfPlayer.ViewModel
         {
             if (_playlist.ShuffleState == ShuffleEnum.On)
             {
-                if (musicEngine.IsPlaying || musicEngine.IsPaused)
+                if (musicEngine.CurrentState == MusicEngine.PlayerState.Playing || musicEngine.CurrentState == MusicEngine.PlayerState.Paused)
                 {
                     musicEngine.Stop();
                 }
@@ -527,7 +539,7 @@ namespace WpfPlayer.ViewModel
                 }
                 else if (_playlist.NextSong != null && SelectedPlaylistPosition == _playlist.PlaylistItems.FindIndex(t => t == _playlist.NextSong))
                 {
-                    if (musicEngine.IsPaused)
+                    if (musicEngine.CurrentState == MusicEngine.PlayerState.Paused)
                     {
                         if (dispatcherTimer.IsEnabled == false)
                             dispatcherTimer.Start();
@@ -537,7 +549,7 @@ namespace WpfPlayer.ViewModel
                 }
                 else
                 {
-                    if (musicEngine.IsPlaying || musicEngine.IsPaused)
+                    if (musicEngine.CurrentState == MusicEngine.PlayerState.Playing || musicEngine.CurrentState == MusicEngine.PlayerState.Paused)
                     {
                         musicEngine.Stop();
                     }

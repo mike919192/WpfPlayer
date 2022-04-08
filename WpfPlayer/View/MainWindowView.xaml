@@ -9,29 +9,26 @@
         xmlns:viewmodel="clr-namespace:WpfPlayer.ViewModel"
         d:DataContext="{d:DesignInstance Type=viewmodel:MainWindowViewModel}"
         mc:Ignorable="d"
-        Title="WpfPlayer" Height="800" Width="900" MinHeight="315" MinWidth="600" Icon="Music-icon.ico">
+        Title="WpfPlayer" Height="800" Width="900" MinHeight="305" MinWidth="600" Icon="Music-icon.ico">
     
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo x:Name="taskBarItemInfo1" 
-                     Description="Taskbar Item Info Sample">
+                         Description="{Binding WindowTitleString}">
             <TaskbarItemInfo.ThumbButtonInfos>
                 <ThumbButtonInfoCollection>
                     <ThumbButtonInfo
                         DismissWhenClicked="False"
                         Command="{Binding RewButton}"
-                        Description="Rew"
                         ImageSource="pack://application:,,,/WpfPlayer;component/resources/rew_white.png"/>
 
                     <ThumbButtonInfo
                         DismissWhenClicked="False"
                         Command="{Binding PlayButton}"
-                        Description="Play"
                         ImageSource="{Binding PlayPauseWhiteIcon}"/>
 
                     <ThumbButtonInfo
                         DismissWhenClicked="False"
                         Command="{Binding FFButton}"
-                        Description="FF"
                         ImageSource="pack://application:,,,/WpfPlayer;component/resources/ff_white.png"/>
 
                 </ThumbButtonInfoCollection>
@@ -47,7 +44,7 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="276"/>
+            <RowDefinition Height="266"/>
             <RowDefinition Height="276*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
@@ -60,7 +57,7 @@
                    x:Name="image" 
                    HorizontalAlignment="Left" 
                    Height="256" 
-                   Margin="10,10,0,0" 
+                   Margin="10,0,0,0" 
                    VerticalAlignment="Top" 
                    Width="256" 
                    Source="{Binding DisplayedImagePath}" 
@@ -69,7 +66,7 @@
             <TextBlock Grid.Row="0" Grid.Column="1" 
                        x:Name="textBlock" 
                        HorizontalAlignment="Left" 
-                       Margin="0,10,0,0" 
+                       Margin="0,0,0,0" 
                        Text="{Binding ArtistString}" 
                        VerticalAlignment="Top" 
                        FontSize="24" 
@@ -78,7 +75,7 @@
             <TextBlock Grid.Row="0" Grid.Column="1" 
                        x:Name="textBlock1" 
                        HorizontalAlignment="Left" 
-                       Margin="0,47,0,0" 
+                       Margin="0,37,0,0" 
                        Text="{Binding AlbumString}" 
                        VerticalAlignment="Top" 
                        FontSize="24" 
@@ -87,7 +84,7 @@
             <TextBlock Grid.Row="0" Grid.Column="1" 
                        x:Name="textBlock2" 
                        HorizontalAlignment="Left" 
-                       Margin="0,84,0,0" 
+                       Margin="0,74,0,0" 
                        Text="{Binding SongTitleString}" 
                        VerticalAlignment="Top" 
                        FontSize="30" 
@@ -142,7 +139,8 @@
                     Background="#00DDDDDD" 
                     BorderBrush="#00707070" 
                     Foreground="#00000000" 
-                    Width="40" Height="40">
+                    Width="40" Height="40"
+                    ToolTip="Shuffle">
                 <Image Source="{Binding ShuffleIcon}"/>
             </Button>
 
@@ -155,33 +153,36 @@
                     Background="#00DDDDDD" 
                     BorderBrush="#00707070" 
                     Foreground="#00000000" 
-                    Width="32" Height="32">
+                    Width="32" Height="32"
+                    ToolTip="Options">
                 <Image Source="pack://application:,,,/WpfPlayer;component/resources/options.png"/>
             </Button>
 
             <Button Grid.Row="0" Grid.Column="1" 
                     x:Name="SavePlaylistButton" 
                     HorizontalAlignment="Right" 
-                    Margin="0,50,10,0" 
-                    VerticalAlignment="Top" 
+                    Margin="0,0,50,40" 
+                    VerticalAlignment="Bottom" 
                     Command="{Binding SavePlaylistButton}" 
                     Background="#00DDDDDD" 
                     BorderBrush="#00707070" 
                     Foreground="#00000000" 
-                    Width="32" Height="32">
+                    Width="32" Height="32"
+                    ToolTip="Save Playlist">
                 <Image Source="pack://application:,,,/WpfPlayer;component/resources/save.png"/>
             </Button>
 
             <Button Grid.Row="0" Grid.Column="1" 
                     x:Name="LoadPlaylistButton" 
                     HorizontalAlignment="Right" 
-                    Margin="0,100,10,0" 
-                    VerticalAlignment="Top" 
+                    Margin="0,0,10,40" 
+                    VerticalAlignment="Bottom" 
                     Command="{Binding LoadPlaylistButton}" 
                     Background="#00DDDDDD" 
                     BorderBrush="#00707070" 
                     Foreground="#00000000" 
-                    Width="32" Height="32">
+                    Width="32" Height="32"
+                    ToolTip="Load Playlist">
                 <Image Source="pack://application:,,,/WpfPlayer;component/resources/folder.png"/>
             </Button>
 
@@ -225,7 +226,7 @@
             <Slider Grid.Row="0" Grid.Column="1" 
                     x:Name="slider" 
                     HorizontalAlignment="Right" 
-                    Margin="0,0,10,46" 
+                    Margin="0,0,100,46" 
                     VerticalAlignment="Bottom" 
                     Width="120" 
                     TickPlacement="None" 
@@ -237,7 +238,7 @@
                    Grid.Row="0" Grid.Column="1" 
                    HorizontalAlignment="Right" 
                    Height="32" 
-                   Margin="0,0,135,38" 
+                   Margin="0,0,225,38" 
                    VerticalAlignment="Bottom" 
                    Width="32"/>
             
