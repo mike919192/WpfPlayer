@@ -11,7 +11,7 @@ using System.Windows.Forms;
 namespace WpfPlayer.Model
 {
     [JsonObject]
-    public class Folder : IEnumerable //IComparable<Folder>
+    public class Folder : IEnumerable, IComparable<Folder>
     {
         //private ObservableCollection<Folder> subFolders;
         public ObservableCollection<string> files;
@@ -42,12 +42,15 @@ namespace WpfPlayer.Model
             parentDirectory = directoryString.Substring(0, length);
 
             List<string> test = getFiles(directoryString, "*.mp3|*.mp4|*.flac|*.m4a|*.wma", SearchOption.AllDirectories).ToList();
-            test.Sort();
+            //test.Sort();
             for (int index = 0; index < test.Count; ++index)
             {
                 test[index] = test[index].Substring(directoryString.Length + 1);
                 Add(test[index].Split(Path.DirectorySeparatorChar));
             }
+
+            if (SubFolders.Count > 1)
+                Sort();
         }
 
         public Folder()
@@ -83,12 +86,37 @@ namespace WpfPlayer.Model
         }
 
         public override string ToString() { return FolderName; }
-        //public int CompareTo(Folder that)
-        //{
-        //    var test = string.Compare(this.FolderName, that.FolderName, true);
+        public int CompareTo(Folder that)
+        {
+            string pattern = "\\(\\d{4}\\)$";
+            //if they both contain a year than compare that first
+            if (System.Text.RegularExpressions.Regex.IsMatch(FolderName, pattern) && System.Text.RegularExpressions.Regex.IsMatch(that.FolderName, pattern))
+            {
+                var match1 = System.Text.RegularExpressions.Regex.Match(FolderName, pattern);
+                var match2 = System.Text.RegularExpressions.Regex.Match(that.FolderName, pattern);
 
-        //    return test;
-        //}
+                if (match1.Value != match2.Value)
+                {
+                    return Convert.ToInt32(match1.Value.Substring(1,4)) < Convert.ToInt32(match2.Value.Substring(1,4)) ? 1 : -1;
+                }
+            }  //if only one contains a year put that one first
+            else if (System.Text.RegularExpressions.Regex.IsMatch(FolderName, pattern) && System.Text.RegularExpressions.Regex.IsMatch(that.FolderName, pattern) == false)
+            {
+                return -1;
+            }
+            else if (System.Text.RegularExpressions.Regex.IsMatch(FolderName, pattern) == false && System.Text.RegularExpressions.Regex.IsMatch(that.FolderName, pattern))
+            {
+                return 1;
+            }
+
+            //otherwise just compare the strings (without "The ")
+            var modFolderName = FolderName.StartsWith("The ") ? FolderName.Remove(0, 4) : FolderName;
+            var modThatFolderName = that.FolderName.StartsWith("The ") ? that.FolderName.Remove(0, 4) : that.FolderName;
+
+            var test = string.Compare(modFolderName, modThatFolderName, true);
+
+            return test;
+        }
 
         private void Add(string[] splitString)
         {
@@ -102,6 +130,21 @@ namespace WpfPlayer.Model
                     SubFolders.Add(new Folder(splitString[0], Path.Combine(ParentDirectory, FolderName)));
                 string[] array = ((IEnumerable<string>)splitString).Skip(1).Take(splitString.Length - 1).ToArray();
                 SubFolders[SubFolders.ToList().FindIndex(folder => folder.FolderName == splitString[0])].Add(array);
+            }
+        }
+
+        private void Sort()
+        {
+            var tempList = SubFolders.ToList();
+            tempList.Sort();
+            SubFolders = new ObservableCollection<Folder>(tempList);
+
+            if (SubFolders.Count > 1)
+            {
+                foreach (var folder in SubFolders)
+                {
+                    folder.Sort();
+                }
             }
         }
 
