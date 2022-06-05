@@ -273,6 +273,11 @@
                      ItemsSource="{Binding Playlist}" 
                      SelectedIndex="{Binding SelectedPlaylistPosition}" 
                      FontSize="14">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock FontWeight="{Binding fw}" Text="{Binding Path=Name}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseDoubleClick">
                         <i:InvokeCommandAction Command="{Binding Path=PlayTrackButton}"/>

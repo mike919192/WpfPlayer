@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using WpfPlayer.Model;
 using WpfPlayer.View;
@@ -23,14 +24,16 @@ namespace WpfPlayer.ViewModel
         private string _playlistDirectory;
 
         private Playlist _playlist = new Playlist();
-        public List<string> Playlist
+        public List<PlaylistItem> Playlist
         {
             get
             {
-                List<string> friendlyPlaylist = new List<string>();
+                List<PlaylistItem> friendlyPlaylist = new List<PlaylistItem>();
                 foreach(var filePath in _playlist.PlaylistItems)
                 {
-                    friendlyPlaylist.Add(Path.GetFileNameWithoutExtension(filePath));
+                    friendlyPlaylist.Add(
+                        new PlaylistItem(Path.GetFileNameWithoutExtension(filePath), 
+                        filePath == _playlist.CurrentSong ? FontWeights.Bold: FontWeights.Normal));
                 }
                 return friendlyPlaylist;
             }
@@ -392,7 +395,7 @@ namespace WpfPlayer.ViewModel
             else
                 DisplayedImagePath = null;
 
-            SelectedPlaylistPosition = _playlist.PlaylistItems.FindIndex(t => t == _playlist.CurrentSong);
+            //SelectedPlaylistPosition = _playlist.PlaylistItems.FindIndex(t => t == _playlist.CurrentSong);
 
             SongStartedVMEventArgs args = new SongStartedVMEventArgs
             {
@@ -401,6 +404,8 @@ namespace WpfPlayer.ViewModel
             };
             dispatcherTimer.Start();
             ProgressLoading = false;
+
+            OnPropertyChanged(nameof(Playlist));
 
             OnSongStarted(args);
         }
@@ -661,5 +666,17 @@ namespace WpfPlayer.ViewModel
             set { SetValue(SelectedItem_Property, value); }
         }
         public static readonly DependencyProperty SelectedItem_Property = DependencyProperty.Register("SelectedItem_", typeof(object), typeof(ExtendedTreeView), new UIPropertyMetadata(null));
+    }
+
+    public struct PlaylistItem
+    {
+        public string Name { get; }
+        public FontWeight fw { get; }
+
+        public PlaylistItem(string nameIn, FontWeight fwIn)
+        {
+            Name = nameIn;
+            fw = fwIn;
+        }
     }
 }
