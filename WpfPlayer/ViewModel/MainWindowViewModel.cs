@@ -365,6 +365,8 @@ namespace WpfPlayer.ViewModel
             ProgressValue = 0.0;
             SetPlayPauseIcon(PlayPauseEnum.Play);
             dispatcherTimer.Stop();
+
+            OnSongPaused(new EventArgs());
         }
 
         private void MusicEngine_SongFinished(object sender, EventArgs e)
