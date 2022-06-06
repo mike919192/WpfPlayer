@@ -61,7 +61,8 @@
                    VerticalAlignment="Top" 
                    Width="256" 
                    Source="{Binding DisplayedImagePath}" 
-                   Stretch="Fill"/>
+                   Stretch="Fill"
+                   RenderOptions.BitmapScalingMode="HighQuality"/>
 
             <TextBlock Grid.Row="0" Grid.Column="1" 
                        x:Name="textBlock" 
